@@ -8,7 +8,7 @@ const username = "student"
 const password = "password1"
 
 const db = require('monk')(`mongodb://${username}:${password}@ds227853.mlab.com:27853/congress`);
-const { id } = require('monk')
+const { id: myid } = require('monk')
 const userDB = db.get('fortKnox') //user info
 
 //
@@ -31,13 +31,20 @@ const getUsers = async () => {
 const getUserByID = async (id) => {
     const userlist = await userDB.find({})
     if( userlist ) {
-        if( typeof id == 'string') {
+        if( typeof id == 'string' && ( id.length === 12 || id.length === 24)) {
+            const user = await userDB.findOne( myid(id) ).catch(err=>{}) //.then(()=> console.log("helpme")).catch(()=> console.log("help"))
+            if( user ){
+                return {status:true, msg: user}
+            } else {
+                return  {status:false, msg:"Unable to locate user by PID!"}
+            }  
+        } else if (typeof id == 'string') { 
                 const adjid = id.toLowerCase()
                 const user = userlist.reduce( (previous, next ) => {return ( next.emailaddress === adjid || next.username === adjid ) ? next : previous}, null);
                 if (user) {
                     return {status:true, msg: user}
                 }  else {
-                    return {status:false, msg:"Unable to locate user!"}
+                    return {status:false, msg:"Unable to locate user by userId!"}
                 } 
         } else {
                 const user = userlist.reduce( (previous, next ) => {return ( next.emailaddress === id.username || next.username === id.username || next.emailaddress === id.emailaddress || next.username === id.emailaddress ) ? next : previous}, null);
@@ -105,9 +112,9 @@ const AddUserToDB = async (userob) => {
 }
 
 const deleteUserByID = async (id) => {
-    const theuser = getUserByID(id)
+    const theuser = await getUserByID(id)
     if( theuser.status ) {
-        await userDB.findOneAndDelete(id(theuser.msg._id))
+        await userDB.findOneAndDelete(myid(theuser.msg._id))
             .catch(err => {console.log(err); return {status:false, msg:"Unable to delete user from DB"}}) 
         return {status:true, msg:"User was deleted!"}
     } else {
@@ -118,7 +125,7 @@ const deleteUserByID = async (id) => {
 
 const updateUserByID = async (id, updatedobj) => {
 
-    const olduser = getUserByID(id)
+    const olduser = await getUserByID(id)
 
     if( olduser.status ) {
         
