@@ -134,9 +134,9 @@ const updateUserByID = async (id, updatedobj) => {
             olduser.msg[prop] = updatedobj[prop]
         }
 
-        const {username, emailaddress, password, socialsecurity, mothersmaiden, fears, cart, roles} = olditem[1]
+        const {username, emailaddress, password, socialsecurity, mothersmaiden, fears, cart, roles} = olduser.msg
 
-        await productDB.findOneAndUpdate(id(olduser.msg._id), {$set: {username, emailaddress, password, socialsecurity, mothersmaiden, fears, cart, roles}})
+        await userDB.findOneAndUpdate(myid(olduser.msg._id), {$set: {username, emailaddress, password, socialsecurity, mothersmaiden, fears, cart, roles}})
             .catch(err => {console.log(err); return [false, "Unable to update User into DB"]}) 
         return {status:true, msg:"User was updated!"}
     } else {
@@ -147,8 +147,6 @@ const updateUserByID = async (id, updatedobj) => {
 const attemptUserLogin = async (logininfo) => {
 
     const theuser = await getUserByID(logininfo.username)
-    console.log( theuser )
-    console.log( logininfo )
     if( theuser.status ) {
       if( theuser.msg.password == logininfo.password ) {
         return {status:true, msg:"Password correct!"}

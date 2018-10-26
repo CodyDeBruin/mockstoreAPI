@@ -19,7 +19,29 @@ const productDB = db.get('ecommerce') //product info
 //  {name, desc, price,img, productid(randomnumbers, used for storing in cart. this is set on the server)}
 //
 
- 
+const getProductByCat = async (cat) => {
+    //check if PID can be converted to an object id
+    const product = await productDB.find({}) //.then(()=> console.log("helpme")).catch(()=> console.log("help"))
+
+    if( product ){
+
+        const filtprod = product.filter( (val) => {
+            let include = false
+            val.category.forEach( (item) => {
+                if (item == cat){
+                    include = true
+                }
+            })
+            return include;
+        }) 
+        return {status:true, msg:filtprod}
+    } else {
+        return {status:false, msg:"Could not access DB!"}
+    }  
+
+}
+
+
 const getProductByID = async (pid) => {
     //check if PID can be converted to an object id
     if(typeof pid == 'string' && pid.length === 12 || pid.length === 24) {
@@ -116,4 +138,5 @@ module.exports = {
     getAllProducts,
     updateProductByID,
     deleteProductByID,
+    getProductByCat,
 }

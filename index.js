@@ -23,15 +23,12 @@ app.use(cors())
 //
 //
 const productPOST = async (req, res) => {
-
     const attemptAdd = await productDBMethods.addProductToDB(req.body)
-
     if(attemptAdd[0]){
         res.status(201).json(attemptAdd[1]) 
     } else {
         res.status(400).json(attemptAdd[1]) 
     }
-  
 }
 const productGET = async (req, res) => {
 
@@ -77,6 +74,16 @@ const productByIDDELETE = async (req, res) => {
         res.status(404).json(attemptById[1]) 
     } 
 }
+
+const productCatGET = async (req, res) => {
+    const attemptAdd = await productDBMethods.getProductByCat(req.params.id)
+    if(attemptAdd.status){
+        res.status(201).json(attemptAdd) 
+    } else {
+        res.status(400).json(attemptAdd) 
+    }
+}
+
 //
 //
 //  USER RESPONSES
@@ -147,6 +154,8 @@ app.route('/products/')
     .get(productGET) 
     .post(productPOST) //Pass a JSON object in the body containing all of the following {name, desc, price,img} in order to create an item
 
+app.route('/products/category/:id')
+    .get(productCatGET) 
 
 app.route('/users/:id')
     .get(userByIdGET) //GET USER PROFILE INFO (ALSO INCLUDES THEIR PASSWORD)
